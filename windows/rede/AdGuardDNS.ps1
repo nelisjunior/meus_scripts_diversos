@@ -1,68 +1,66 @@
-function Set-DNSCustom {
-    param (
-        [string]$adapter,
-        [string]$ipv4Primary,
-        [string]$ipv4Secondary,
-        [string]$ipv6Primary,
-        [string]$ipv6Secondary
-    )
-    Write-Host "Configurando DNS personalizado para o adaptador $adapter..."
-    Set-DnsClientServerAddress -InterfaceAlias $adapter -ServerAddresses $ipv4Primary, $ipv4Secondary
-    Set-DnsClientServerAddress -InterfaceAlias $adapter -ServerAddresses $ipv6Primary, $ipv6Secondary
-    Write-Host "DNS personalizado configurado com sucesso."
-}
+# Versão melhorada do AdGuardDNS_simple.ps1
+# Script para configurar o DNS AdGuard no Windows
+# AdGuard IPs DNS
+$ipv4PrimaryDNS = "94.140.14.14"
+$ipv4SecondaryDNS = "94.140.15.15"
+$ipv6PrimaryDNS = "2a10:50c0::ad1:ff"
+$ipv6SecondaryDNS = "2a10:50c0::ad2:ff"
 
-function Restore-DNSAuto {
-    param (
-        [string]$adapter
-    )
-    Write-Host "Restaurando configurações automáticas de DNS para o adaptador $adapter..."
-    Set-DnsClientServerAddress -InterfaceAlias $adapter -ResetServerAddresses
-    Write-Host "Configurações automáticas de DNS restauradas com sucesso."
-}
+# Interface de rede
+$interface = "Ethernet 1"
 
-function Restart-NetworkAdapter {
-    param (
-        [string]$adapter
-    )
-    Write-Host "Reiniciando o adaptador de rede $adapter..."
-    Disable-NetAdapter -Name $adapter -Confirm:$false
-    Start-Sleep -Seconds 5
-    Enable-NetAdapter -Name $adapter -Confirm:$false
-    Write-Host "Adaptador de rede reiniciado com sucesso."
-}
+# Pergunta qual opção deseja realizar
+$opcao = Read-Host "Escolha a opção desejada: 1 - Configurar DNS AdGuard, 2 - Restaurar DNS original"
 
-$adapter = Get-NetAdapter | Where-Object { $_.Status -eq "Up" } | Select-Object -First 1
-
-$ipv4Primary = "94.140.14.14"
-$ipv4Secondary = "94.140.15.15"
-$ipv6Primary = "2a10:50c0::ad1:ff"
-$ipv6Secondary = "2a10:50c0::ad2:ff"
-
-if (-not $adapter) {
-    Write-Host "Adaptador não detectado. Certifique-se de que o adaptador está corretamente configurado."
+# Confirmação da escolha
+$confirmacao = Read-Host "Você escolheu a opção $opcao. Deseja continuar? (s/n)"
+if ($confirmacao -ne 's') {
+    Write-Host "Operação cancelada pelo usuário."
     exit
 }
 
-Write-Host "Adaptador detectado: $($adapter.Name)"
-Write-Host "======================================"
-Write-Host "Configuração de DNS"
-Write-Host "======================================"
-Write-Host "1. Ativar DNS personalizado (AdGuard DNS)"
-Write-Host "2. Restaurar configurações automáticas"
-Write-Host "======================================"
-$choice = Read-Host "Escolha uma opção (1 ou 2)"
-
+# Configuração do DNS AdGuard
 try {
-    if ($choice -eq "1") {
-        Set-DNSCustom -adapter $adapter.Name -ipv4Primary $ipv4Primary -ipv4Secondary $ipv4Secondary -ipv6Primary $ipv6Primary -ipv6Secondary $ipv6Secondary
-        Restart-NetworkAdapter -adapter $adapter.Name
-    } elseif ($choice -eq "2") {
-        Restore-DNSAuto -adapter $adapter.Name
-        Restart-NetworkAdapter -adapter $adapter.Name
-    } else {
-        Write-Host "Opção inválida. Tente novamente."
+    if ($opcao -eq 1) {
+        Write-Host "Configurando DNS AdGuard..."
+        Write-Host "Configurando IPv4 Primary DNS: $ipv4PrimaryDNS"
+        netsh interface ipv4 set dns $interface static $ipv4PrimaryDNS
+        Write-Host "Configurando IPv4 Secondary DNS: $ipv4SecondaryDNS"
+        netsh interface ipv4 add dns $interface $ipv4SecondaryDNS index=2
+        Write-Host "Configurando IPv6 Primary DNS: $ipv6PrimaryDNS"
+        netsh interface ipv6 set dns $interface static $ipv6PrimaryDNS
+        Write-Host "Configurando IPv6 Secondary DNS: $ipv6SecondaryDNS"
+        netsh interface ipv6 add dns $interface $ipv6SecondaryDNS index=2
+        Write-Host "DNS AdGuard configurado com sucesso!"
     }
-} catch {
-    Write-Host "Ocorreu um erro: $_"
+    # Restaurar DNS original
+    elseif ($opcao -eq 2) {
+        Write-Host "Restaurando DNS original..."
+        Write-Host "Restaurando IPv4 DNS para DHCP"
+        netsh interface ipv4 set dns $interface dhcp
+        Write-Host "Restaurando IPv6 DNS para DHCP"
+        netsh interface ipv6 set dns $interface dhcp
+        Write-Host "DNS restaurado com sucesso!"
+    }
+    else {
+        Write-Host "Opção inválida!"
+    }
 }
+catch {
+    Write-Host "Erro ao configurar DNS: $_"
+}
+
+# Opção para verificar os IPs DNS atuais
+$verificarDNS = Read-Host "Deseja verificar os IPs DNS atuais? (s/n)"
+if ($verificarDNS -eq 's') {
+    Write-Host "IPs DNS atuais para ${interface}:"
+    netsh interface ipv4 show dnsservers $interface
+    netsh interface ipv6 show dnsservers $interface
+}
+
+# Pause
+Write-Host "Pressione qualquer tecla para sair..."
+$host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown") | Out-Null
+
+# Fim do script
+exit

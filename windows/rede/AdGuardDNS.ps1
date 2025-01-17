@@ -1,5 +1,20 @@
 # Versão melhorada do AdGuardDNS_simple.ps1
 # Script para configurar o DNS AdGuard no Windows
+
+# Verificação de permissões de administrador
+if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    Write-Host "Este script precisa ser executado como administrador."
+    Write-Host "Reiniciando script no Terminal com o perfil PowerShell Preview..."
+    Start-Sleep -Seconds 2 # Pausa de 2 segundos para exibir a mensagem
+
+    # Reabrindo o script no perfil correto
+    Start-Process "wt.exe" `
+        -ArgumentList "new-tab -p `"{4856f5c3-1628-4641-a55d-7394620557be}`" pwsh -NoProfile -File `"$PSCommandPath`"" `
+        -Verb RunAs
+
+    exit
+}
+
 # AdGuard IPs DNS
 $ipv4PrimaryDNS = "94.140.14.14"
 $ipv4SecondaryDNS = "94.140.15.15"

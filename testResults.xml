@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<test-results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="nunit_schema_2.5.xsd" name="Pester" total="7" errors="0" failures="0" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2025-09-22" time="20:43:46">
+  <environment machine-name="MYSTRELLA" platform="Microsoft Windows 11 Pro|C:\WINDOWS|\Device\Harddisk1\Partition3" nunit-version="2.5.8.0" clr-version="10.0.0" user="ms" user-domain="MYSTRELLA" os-version="10.0.26100" cwd="D:\nelis_repositorios\meus_scripts_diversos" />
+  <culture-info current-culture="pt-BR" current-uiculture="pt-BR" />
+  <test-suite type="TestFixture" name="Pester" executed="True" result="Success" success="True" time="3.2066" asserts="0" description="Pester">
+    <results>
+      <test-suite type="TestFixture" name="D:\nelis_repositorios\meus_scripts_diversos\tests\Administrador.Tests.ps1" executed="True" result="Success" success="True" time="3.2066" asserts="0" description="D:\nelis_repositorios\meus_scripts_diversos\tests\Administrador.Tests.ps1">
+        <results>
+          <test-suite type="TestFixture" name="Estrutura básica - scripts principais presentes" executed="True" result="Success" success="True" time="0.3799" asserts="0" description="Estrutura básica - scripts principais presentes">
+            <results>
+              <test-case description="Repo possui pasta windows" name="Estrutura básica - scripts principais presentes.Repo possui pasta windows" time="0.2025" asserts="0" success="True" result="Success" executed="True" />
+              <test-case description="ScriptsMenu encontrado" name="Estrutura básica - scripts principais presentes.ScriptsMenu encontrado" time="0.0357" asserts="0" success="True" result="Success" executed="True" />
+              <test-case description="WSL_Cleanup encontrado" name="Estrutura básica - scripts principais presentes.WSL_Cleanup encontrado" time="0.0173" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="ScriptsMenu.ps1 - funções" executed="True" result="Success" success="True" time="0.9568" asserts="0" description="ScriptsMenu.ps1 - funções">
+            <results>
+              <test-case description="Get-ScriptDescription presente" name="ScriptsMenu.ps1 - funções.Get-ScriptDescription presente" time="0.0547" asserts="0" success="True" result="Success" executed="True" />
+              <test-case description="Split-Args lida com espaços em aspas" name="ScriptsMenu.ps1 - funções.Split-Args lida com espaços em aspas" time="0.1254" asserts="0" success="True" result="Success" executed="True" />
+              <test-case description="Format-DisplayArgs adiciona aspas quando necessário" name="ScriptsMenu.ps1 - funções.Format-DisplayArgs adiciona aspas quando necessário" time="0.0237" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="WSL_Cleanup.ps1 - DryRun" executed="True" result="Success" success="True" time="1.8108" asserts="0" description="WSL_Cleanup.ps1 - DryRun">
+            <results>
+              <test-case description="Executa em DryRun sem erro (bypass admin/wsl)" name="WSL_Cleanup.ps1 - DryRun.Executa em DryRun sem erro (bypass admin/wsl)" time="0.8321" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>

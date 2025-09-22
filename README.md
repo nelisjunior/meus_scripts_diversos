@@ -8,9 +8,13 @@ Centralizar scripts úteis para tarefas do dia a dia, como configuração de red
 
 ## Estrutura
 
-Os scripts estão organizados em subpastas conforme o tema ou função, por exemplo:
-- `windows/Administrador/`: Scripts administrativos.
-- `windows/rede/`: Scripts para configuração de rede.
+Os scripts estão organizados em subpastas temáticas:
+- `windows/menu/`: Menu interativo para descoberta e execução dos demais scripts.
+- `windows/Administrador/`: Scripts administrativos (ex: WSL_Cleanup, PowerShell_update).
+- `windows/rede/`: Scripts de configuração de rede (ex: AdGuard DNS).
+- `windows/navegadores/edge/`: Backup e restauração de extensões do Edge.
+- `windows/programas/stretchly/`: Instalação e update silencioso do Stretchly.
+- `windows/Office/`: Limpeza/remoção de componentes do Office.
 
 ## Exemplos de Scripts
 

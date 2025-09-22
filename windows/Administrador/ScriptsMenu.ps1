@@ -7,98 +7,32 @@
     apresenta um menu com descrições extraídas dos cabeçalhos dos scripts e permite:
       - visualizar o conteúdo de um script
       - executar o script (no mesmo shell ou em novo processo)
-      - executar com elevação (RunAs)
-      - passar argumentos adicionais
-      - usar modo dry-run para apenas exibir o comando que seria executado
+    <#
+    .SYNOPSIS
+        Stub depreciado do antigo ScriptsMenu na pasta Administrador.
 
-.NOTES
-    - Execute este menu em um PowerShell (padrão ou pwsh).
-    - Para executar scripts que exigem privilégios, use a opção executar elevado.
+    .DESCRIPTION
+        Esta versão foi simplificada para evitar redundância. Ela apenas encaminha o usuário
+        para o launcher principal (WPF avançado) ou, se preferir modo console, para o
+        `windows/menu/ScriptsMenu.ps1` real.
 
-#>
-
-[CmdletBinding()]
-param(
-    [switch]$DryRun = $false,
-    [switch]$NoLoop = $false  # permite testes automatizados pularem o menu interativo
-)
-
-# Configuração de log
-$MenuLog = Join-Path $env:TEMP "ScriptsMenu_$(Get-Date -Format yyyyMMdd_HHmmss).log"
-Add-Content -Path $MenuLog -Value "=== ScriptsMenu log started: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') ===" -ErrorAction SilentlyContinue
-
-function Write-MenuLog([string]$level, [string]$msg) {
-    $entry = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') [$level] $msg"
-    try { Add-Content -Path $MenuLog -Value $entry -ErrorAction SilentlyContinue } catch {}
-    switch ($level) {
-        'INFO'  { Write-Host $msg -ForegroundColor Cyan }
-        'OK'    { Write-Host $msg -ForegroundColor Green }
-        'WARN'  { Write-Host $msg -ForegroundColor Yellow }
-        'ERROR' { Write-Host $msg -ForegroundColor Red }
-        default { Write-Host $msg }
+    .NOTES
+        Você pode remover este arquivo futuramente após atualizar atalhos / automações.
+    #>
+    [CmdletBinding()]
+    param(
+        [switch]$Console,
+        [switch]$DryRun
+    )
+    $menuDir = Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) '..\menu'
+    $launcher = Join-Path $menuDir 'ScriptsLauncher.WPF.ps1'
+    $console  = Join-Path $menuDir 'ScriptsMenu.ps1'
+    Write-Host '[Aviso] Este ScriptsMenu legado foi depreciado.' -ForegroundColor Yellow
+    if($Console){
+        if(Test-Path $console){ Write-Host 'Abrindo versão de console...' -ForegroundColor Cyan; & $console -DryRun:$DryRun } else { Write-Warning "Console menu não encontrado em $console" }
+    } else {
+        if(Test-Path $launcher){ Write-Host 'Abrindo launcher WPF avançado...' -ForegroundColor Cyan; & $launcher -DryRun:$DryRun } elseif(Test-Path $console){ Write-Warning 'Launcher WPF não encontrado, caindo para console.'; & $console -DryRun:$DryRun } else { Write-Error 'Nenhuma versão de menu encontrada.' }
     }
-}
-
-function Write-Info { param($m) Write-MenuLog 'INFO' $m }
-function Write-Good { param($m) Write-MenuLog 'OK' $m }
-function Write-Warn { param($m) Write-MenuLog 'WARN' $m }
-function Write-Err  { param($m) Write-MenuLog 'ERROR' $m }
-
-
-# Determina raiz do repositório (duas pastas acima da pasta atual do script)
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-try { $repoRoot = Resolve-Path (Join-Path $scriptDir '..\..') } catch { $repoRoot = Resolve-Path $scriptDir }
-
-Write-Info "Scripts Menu - procurando .ps1 em: $repoRoot"
-
-# Inicia transcript para debug completo
-$MenuTranscript = Join-Path $env:TEMP "ScriptsMenu_transcript_$(Get-Date -Format yyyyMMdd_HHmmss).txt"
-try { Start-Transcript -Path $MenuTranscript -ErrorAction SilentlyContinue } catch {}
-
-function Get-ScriptDescription($path) {
-    # Tenta extrair bloco de comentário <# ... #> ou primeiras linhas comentadas
-    try {
-        $lines = Get-Content -Path $path -ErrorAction Stop -TotalCount 50
-    } catch { return '' }
-
-    $inBlock = $false
-    $descLines = @()
-    foreach ($l in $lines) {
-        if ($l -match '^\s*<#') { $inBlock = $true; continue }
-        if ($l -match '#>') { break }
-        if ($inBlock) { $descLines += ($l.Trim()) }
-    }
-
-    if ($descLines.Count -gt 0) {
-        # busca .SYNOPSIS ou pega primeiras linhas não vazias
-        $syn = $descLines | Where-Object { $_ -match '\.SYNOPSIS' } | Select-Object -First 1
-        if ($syn) { return ($descLines -join ' ') -replace '\s+',' ' }
-        return ($descLines | Where-Object { $_ -ne '' } | Select-Object -First 2) -join ' '
-    }
-
-    # fallback: procurar linhas de comentário no topo
-    $topComments = $lines | Where-Object { $_ -match '^\s*#' } | ForEach-Object { ($_ -replace '^\s*#\s?','').Trim() }
-    if ($topComments) { return ($topComments | Select-Object -First 2) -join ' ' }
-    return ''
-}
-
-function Find-Scripts() {
-    Get-ChildItem -Path $repoRoot -Recurse -Include *.ps1 -File -ErrorAction SilentlyContinue |
-        Where-Object { $_.FullName -ne $MyInvocation.MyCommand.Path } |
-        Sort-Object -Property FullName
-}
-
-function Build-CommandString($pwshPath, $filePath, $argsString) {
-    $quotedPath = '"' + $filePath + '"'
-    if ([string]::IsNullOrWhiteSpace($argsString)) { return "-NoProfile -ExecutionPolicy Bypass -File $quotedPath" }
-    # Mantém os argumentos como string (usuário é responsável por citações corretas)
-    return "-NoProfile -ExecutionPolicy Bypass -File $quotedPath $argsString"
-}
-
-# Split-Args: tokeniza uma string de argumentos respeitando aspas simples e duplas
-function Split-Args([string]$argsString) {
-    if ([string]::IsNullOrWhiteSpace($argsString)) { return @() }
-    $pattern = @'
 ("([^"\\]|\\.)*"|\'([^'\\]|\\.)*\'|\S+)
 '@
     $matches = [regex]::Matches($argsString, $pattern)

@@ -48,105 +48,13 @@ function Get-RepoRoot {
 
 $RepoRoot = Get-RepoRoot -base $StartPath
 
-function Get-Description($file) {
-    try { $lines = Get-Content -Path $file -TotalCount 60 -ErrorAction Stop } catch { return '' }
-    # Bloco <# ... #>
-    $in=$false; $acc=@()
-    foreach($l in $lines){
-        if($l -match '^\s*<#'){ $in=$true; continue }
-        if($l -match '#>'){ break }
-        if($in){ $acc += ($l.Trim()) }
-    }
-    if($acc.Count){
-        $syn = $acc | Where-Object { $_ -match '\.SYNOPSIS' } | Select-Object -First 1
-        if($syn){ return (($acc -join ' ') -replace '\s+',' ').Trim() }
-        return (($acc | Where-Object { $_ } | Select-Object -First 2) -join ' ').Trim()
-    }
-    # Comentários simples
-    $top = $lines | Where-Object { $_ -match '^\s*#' } | ForEach-Object { ($_ -replace '^\s*#\s?','').Trim() }
-    if($top){ return (($top | Select-Object -First 2) -join ' ').Trim() }
-    return ''
-}
-
-function Discover-Scripts {
-    $files = Get-ChildItem -Path $RepoRoot -Recurse -Include *.ps1 -File -ErrorAction SilentlyContinue
-    if(-not $IncludeTests){ $files = $files | Where-Object { $_.Name -notmatch '\.Tests\.ps1$' -and $_.FullName -notmatch "\\tests\\" } }
-    $files | Sort-Object FullName | ForEach-Object {
-        [PSCustomObject]@{
-            Name        = $_.Name
-            FullName    = $_.FullName
-            Description = Get-Description -file $_.FullName
-        }
-    }
-}
-
-function Build-Command([string]$pwsh,[string]$file,[string]$argLine){
-    $quoted = '"' + $file + '"'
-    if([string]::IsNullOrWhiteSpace($argLine)){ return "$pwsh -NoProfile -ExecutionPolicy Bypass -File $quoted" }
-    return "$pwsh -NoProfile -ExecutionPolicy Bypass -File $quoted $argLine"
-}
-
-function Get-PwshPath {
-    $candidates = @('pwsh','powershell')
-    foreach($c in $candidates){ $cmd = Get-Command $c -ErrorAction SilentlyContinue; if($cmd){ return $cmd.Source } }
-    throw 'Nenhum executável PowerShell encontrado (pwsh ou powershell).'
-}
-
-# ================= GUI =================
-$form               = New-Object System.Windows.Forms.Form
-$form.Text          = "Scripts Menu (GUI)"
-$form.Size          = New-Object System.Drawing.Size(1050,640)
-$form.StartPosition = 'CenterScreen'
-
-$lblFilter = New-Object System.Windows.Forms.Label
-$lblFilter.Text = 'Filtro:'
-$lblFilter.AutoSize = $true
-$lblFilter.Location = '10,15'
-
-$txtFilter = New-Object System.Windows.Forms.TextBox
-$txtFilter.Location = '60,12'
-$txtFilter.Width = 260
-
-$chkDry = New-Object System.Windows.Forms.CheckBox
-$chkDry.Text = 'Dry-Run'
-$chkDry.Location = '340,12'
-$chkDry.AutoSize = $true
-$chkDry.Checked = [bool]$DryRun
-
-$btnReload = New-Object System.Windows.Forms.Button
-$btnReload.Text = 'Recarregar'
-$btnReload.Location = '430,10'
-$btnReload.Width = 90
-
-$btnView = New-Object System.Windows.Forms.Button
-$btnView.Text = 'Visualizar'
-$btnView.Location = '530,10'
-$btnView.Width = 90
-
-$btnRun = New-Object System.Windows.Forms.Button
-$btnRun.Text = 'Executar'
-$btnRun.Location = '630,10'
-$btnRun.Width = 90
-
-$btnElev = New-Object System.Windows.Forms.Button
-$btnElev.Text = 'Executar Elevado'
-$btnElev.Location = '730,10'
-$btnElev.Width = 120
-
-$btnClose = New-Object System.Windows.Forms.Button
-$btnClose.Text = 'Fechar'
-$btnClose.Location = '860,10'
-$btnClose.Width = 90
-
-$lblArgs = New-Object System.Windows.Forms.Label
-$lblArgs.Text = 'Argumentos:'
-$lblArgs.Location = '10,45'
-$lblArgs.AutoSize = $true
-
-$txtArgs = New-Object System.Windows.Forms.TextBox
-$txtArgs.Location = '90,42'
-$txtArgs.Width = 600
-
+<#
+Stub depreciado: use ScriptsLauncher.WPF.ps1
+#>
+param()
+$launcher = Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) 'ScriptsLauncher.WPF.ps1'
+Write-Host '[Aviso] ScriptsMenu.GUI.ps1 depreciado. Abrindo ScriptsLauncher.WPF.ps1...' -ForegroundColor Yellow
+if(Test-Path $launcher){ & $launcher } else { Write-Warning "Launcher não encontrado: $launcher" }
 $lst = New-Object System.Windows.Forms.ListBox
 $lst.Location = '10,70'
 $lst.Size = New-Object System.Drawing.Size(600,480)

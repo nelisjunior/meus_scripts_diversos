@@ -1,6 +1,6 @@
 @echo off
-REM Abre o ScriptsMenu.ps1 em uma nova janela do PowerShell (não elevado)
-SET scriptPath=%~dp0ScriptsMenu.ps1
+REM Abre o novo launcher WPF avançado (não elevado)
+SET scriptPath=%~dp0..\menu\ScriptsLauncher.WPF.ps1
 IF EXIST "%ProgramFiles%\PowerShell\7\pwsh.exe" (
     "%ProgramFiles%\PowerShell\7\pwsh.exe" -NoProfile -ExecutionPolicy Bypass -File "%scriptPath%"
 ) ELSE (

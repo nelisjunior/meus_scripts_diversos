@@ -54,23 +54,29 @@ $interface = "Ethernet 1"
 2. Navegue até o diretório do script desejado.
 3. Execute o script conforme instruções e permissões necessárias (alguns scripts exigem execução como administrador).
 
-### Menu Visual (GUI)
+### Menus Depreciados
 
-Para iniciar a interface gráfica (Windows Forms):
+As versões antigas `ScriptsMenu.GUI.ps1` (WinForms) e `ScriptsMenu.WPF.ps1` (WPF simples), assim como a cópia anterior em `windows/Administrador/ScriptsMenu.ps1`, foram substituídas por stubs que apenas redirecionam para o launcher avançado para evitar redundância e simplificar manutenção.
+
+### Launcher WPF Avançado (Recomendado)
+
+Versão aprimorada com favoritos, árvore de categorias, busca, argumentos persistentes e histórico de execução:
 
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\windows\menu\ScriptsMenu.GUI.ps1
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\windows\menu\ScriptsLauncher.WPF.ps1
 ```
 
 Recursos:
-- Filtro por nome
-- Visualização do conteúdo
-- Execução normal ou elevada
-- Múltipla seleção
-- Campo de argumentos (aplicado a todos os selecionados)
-- Modo Dry-Run (marcar checkbox)
+- Árvore de pastas com contagem de scripts
+- Lista com favoritos (★) e filtro incremental (nome, descrição, caminho relativo)
+- Histórico de recentes (últimos 15)
+- Argumentos específicos por script (persistidos em AppData)
+- Execução normal, elevada ou Dry-Run
+- Alternar tema claro/escuro
+- Opção para incluir testes
+- Abrir script no editor padrão
 
-Use a versão de console (`ScriptsMenu.ps1`) caso prefira ambiente puramente terminal ou precise de máxima compatibilidade remota.
+Configuração salva em: `%APPDATA%/ScriptsLauncher/settings.json`.
 
 ## Contribuição
 

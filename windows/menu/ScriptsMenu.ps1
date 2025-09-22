@@ -1,5 +1,3 @@
-// Copiado do local original windows/Administrador/ScriptsMenu.ps1
-// Conteúdo intacto abaixo
 <#
 .SYNOPSIS
     Menu interativo para listar e executar scripts PowerShell deste repositório.

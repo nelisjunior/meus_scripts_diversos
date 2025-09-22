@@ -54,6 +54,24 @@ $interface = "Ethernet 1"
 2. Navegue até o diretório do script desejado.
 3. Execute o script conforme instruções e permissões necessárias (alguns scripts exigem execução como administrador).
 
+### Menu Visual (GUI)
+
+Para iniciar a interface gráfica (Windows Forms):
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\windows\menu\ScriptsMenu.GUI.ps1
+```
+
+Recursos:
+- Filtro por nome
+- Visualização do conteúdo
+- Execução normal ou elevada
+- Múltipla seleção
+- Campo de argumentos (aplicado a todos os selecionados)
+- Modo Dry-Run (marcar checkbox)
+
+Use a versão de console (`ScriptsMenu.ps1`) caso prefira ambiente puramente terminal ou precise de máxima compatibilidade remota.
+
 ## Contribuição
 
 Sugestões, correções e novos scripts são bem-vindos! Abra uma issue ou envie um pull request.
